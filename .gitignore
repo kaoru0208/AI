@@ -1,0 +1,17 @@
+# 仮想環境
+venv/
+.venv/
+fxbot-env/
+
+# サイズが大きい生成物
+*.dylib
+*.so
+*.zip
+*.csv
+*.pkl
+*.h5
+
+# OS & Python キャッシュ
+.DS_Store
+__pycache__/
+*.pyc

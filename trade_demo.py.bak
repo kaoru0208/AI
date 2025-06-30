@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import os, datetime, numpy as np, pandas as pd, tensorflow as tf
+import oandapyV20, oandapyV20.endpoints.instruments as ins
+
+ACCOUNT_ID   = "YOUR_PRACTICE_ACCOUNT_ID"
+ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN"
+PAIR, GRAN, N = "USD_JPY", "M1", 60            # 1分足×60本
+
+api   = oandapyV20.API(access_token=ACCESS_TOKEN, environment="practice")
+model = tf.keras.models.load_model('lstm_fx.h5', compile=False)
+
+def latest(n=N):
+    r = ins.InstrumentsCandles(instrument=PAIR,
+                               params=dict(count=n, granularity=GRAN, price="M"))
+    api.request(r)
+    closes = np.array([float(c['mid']['c']) for c in r.response['candles']])
+    norm   = (closes - closes.min()) / (closes.max() - closes.min() + 1e-9)
+    return norm.reshape(1, -1, 1)
+
+if __name__ == '__main__':
+    prob = float(model.predict(latest())[0][0])
+    sig  = "BUY"  if prob > 0.6 else "SELL" if prob < 0.4 else "WAIT"
+    print(f"{datetime.datetime.utcnow():%F %T}  prob={prob:.3f}  ⇒  {sig}")
