@@ -1,17 +1,14 @@
-# 仮想環境
-venv/
+# ▼ 仮想環境
 .venv/
-fxbot-env/
+venv/
+*/lib/python*/site-packages/
 
-# サイズが大きい生成物
-*.dylib
-*.so
-*.zip
-*.csv
-*.pkl
-*.h5
+# ▼ 実行時ログ・出力
+logs/
+*.log
+# サイズの大きい一時データ
+20000
 
-# OS & Python キャッシュ
+# ▼ OS／エディタごみ
 .DS_Store
-__pycache__/
-*.pyc
+*.swp
