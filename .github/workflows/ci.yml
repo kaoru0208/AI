@@ -1,15 +1,21 @@
 name: CI
 on: [push, pull_request]
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r requirements.txt
-      - run: pytest -q
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pytest
+        run: pytest          # pytest.ini があるので -q は不要
         env:
-          OANDA_API_TOKEN: ${{ secrets.OANDA_API_TOKEN }}
+          OANDA_API_TOKEN:  ${{ secrets.OANDA_API_TOKEN }}
           OANDA_ACCOUNT_ID: ${{ secrets.OANDA_ACCOUNT_ID }}
