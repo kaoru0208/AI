@@ -5,3 +5,6 @@ oandapyV20
 pytest
 pytest-recording
 vcrpy
+pytest
+pytest-recording
+vcrpy
