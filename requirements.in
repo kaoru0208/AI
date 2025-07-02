@@ -13,3 +13,5 @@ pytest-recording
 vcrpy
 requests
 requests
+requests
+six
