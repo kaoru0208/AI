@@ -1,19 +1,34 @@
-#!/usr/bin/env python3
-import pandas as pd, numpy as np, tensorflow as tf, pickle
+import logging, numpy as np, pandas as pd
+from oandapyV20 import API
+from oandapyV20.endpoints.instruments import InstrumentsCandles
+import config
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.models import load_model
+model = load_model("model.keras", compile=False)
+model.compile(optimizer="adam", loss=MeanSquaredError())
 
-SEQ = 50
-df  = pd.read_csv("features.csv").reset_index(drop=True)
-X_cols = ["close","MA_20","MA_60","RSI_14","BB_upper","BB_lower"]
-y_true = df["y_ret"].iloc[SEQ:].values
+logging.basicConfig(filename='backtest.log',
+                    level=logging.INFO,
+                    format='%(asctime)s [%(levelname)s] %(message)s')
 
-scaler = pickle.load(open("scaler.pkl","rb"))
-X = scaler.transform(df[X_cols])
-X_seq = np.array([X[i:i+SEQ] for i in range(len(X)-SEQ)])
+api = API(access_token=config.API_TOKEN)
+candles = InstrumentsCandles(config.INSTRUMENT,
+                             params={"count":500,"granularity":config.GRANULARITY})
+api.request(candles)
+prices = [float(c["mid"]["c"]) for c in candles.response["candles"] if c["complete"]]
+df = pd.DataFrame(prices, columns=["close"])
 
-model = tf.keras.models.load_model("lstm_fx.h5")
-proba = model.predict(X_seq, verbose=0).flatten()
-signal = np.where(proba > 0.55, 1, np.where(proba < 0.45, -1, 0))
-
-rets = y_true * signal
-equity = np.cumsum(rets)
-print(f"最終損益: {equity[-1]*100:.2f}%  |  勝率: {(rets>0).mean():.2%}")
+win, trades, budget, peak = 0, 0, 1_000_000, 1_000_000
+for i in range(config.WINDOW_SIZE, len(df)-1):
+    seq = df.close.iloc[i-config.WINDOW_SIZE:i].values.reshape(1,config.WINDOW_SIZE,1)
+    seq = seq/seq.max()
+    pred = model.predict(seq, verbose=0)[0][0]*df.close.iloc[i-config.WINDOW_SIZE:i].max()
+    cur, nxt = df.close.iloc[i], df.close.iloc[i+1]
+    diff = nxt-cur
+    if (pred>cur and diff>0) or (pred<cur and diff<0):
+        win += 1
+    trades += 1
+    budget += diff*config.UNITS
+    peak = max(peak, budget)
+dd = peak - budget
+print(f"Trades={trades}, Win%={win/trades*100:.2f}, P/L={budget-1_000_000:.0f}, MaxDD={dd:.0f}")

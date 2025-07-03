@@ -1,13 +1,7 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 25.1.0
-    hooks:
-      - id: black
-  - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
-    hooks:
-      - id: isort
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
+    rev: 24.4.0
+    hooks: [{ id: black }]
+  - repo: https://github.com/astral-sh/ruff
+    rev: v0.4.4
+    hooks: [{ id: ruff }]
