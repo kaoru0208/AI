@@ -1,0 +1,27 @@
+import csv
+import datetime as dt
+
+import a
+import 'balance_log.csv'
+import =
+import ['account']['balance']
+import acc.AccountDetails
+import access_token=config.ACCESS_TOKEN
+import api
+import api.request
+import bal
+import environment=config.API_ENV
+import float
+import newline='' as f:
+import oandapyV20
+import oandapyV20.API
+import oandapyV20.endpoints.accounts as acc
+import open
+import with
+
+import config
+import config.ACCOUNT_ID
+
+    csv.writer(f).writerow([dt.datetime.utcnow().isoformat(), bal])
+print("Logged", bal)
+

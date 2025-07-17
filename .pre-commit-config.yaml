@@ -1,7 +1,14 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.4.0
-    hooks: [{ id: black }]
-  - repo: https://github.com/astral-sh/ruff
-    rev: v0.4.4
-    hooks: [{ id: ruff }]
+    rev: 25.1.0
+    hooks:
+      - id: black
+        types: [python]                         # ← 追加
+        exclude: '^(\.venv|site-packages)/'     # ← 追加
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.4
+    hooks:
+      - id: ruff
+        exclude: '^(\.venv|site-packages)/'
+

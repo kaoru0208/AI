@@ -1,0 +1,44 @@
+_wandb:
+    value:
+        cli_version: 0.21.0
+        e:
+            l28cu9drdbfrsgaayod5r6n1lmg8eovn:
+                apple:
+                    ecpuCores: 4
+                    gpuCores: 10
+                    memoryGb: 16
+                    name: Apple M3
+                    pcpuCores: 4
+                    ramTotalBytes: "17179869184"
+                    swapTotalBytes: "5368709120"
+                cpu_count: 8
+                cpu_count_logical: 8
+                disk:
+                    /:
+                        total: "994662584320"
+                        used: "900174434304"
+                email: kaoruokaji@gmail.com
+                executable: /Users/taka/projects/fxbot/.venv/bin/python3
+                git:
+                    commit: 59fdccbf89bd2aea773c9751e6fdec96a375a957
+                    remote: git@github.com:kaoru0208/AI.git
+                host: takanoMacBook-Pro.local
+                memory:
+                    total: "17179869184"
+                os: macOS-15.5-arm64-arm-64bit-Mach-O
+                program: <stdin>
+                python: CPython 3.13.5
+                root: /Users/taka/projects/fxbot
+                startedAt: "2025-07-16T08:53:34.868272Z"
+                writerId: l28cu9drdbfrsgaayod5r6n1lmg8eovn
+        m: []
+        python_version: 3.13.5
+        t:
+            "3":
+                - 13
+            "4": 3.13.5
+            "5": 0.21.0
+            "10":
+                - 20
+            "12": 0.21.0
+            "13": darwin-arm64

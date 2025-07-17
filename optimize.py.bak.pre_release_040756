@@ -1,0 +1,57 @@
+"""
+最小構成の optimize.py
+--------------------------------------------------
+* objective() には -inf 防御を実装
+* study.optimize 後で best_params.yaml を安全に保存
+* FutureWarning（'T' deprecated）を抑制
+"""
+
+import optuna, numpy as np, yaml, warnings, sys
+from pathlib import Path
+
+# ---------------- 環境設定 ----------------
+warnings.filterwarnings("ignore", category=FutureWarning, message="'T' is deprecated")
+PARAM_FILE = Path("best_params.yaml")
+N_TRIALS   = 300    # お好みで変更
+
+# ---------------- バックテストのダミー実装 ----------------
+# ❗ 本番では自分の run_backtest(...) に差し替える
+from mybot.backtest import run_backtest
+    # ここでは取りあえず疑似損益を返す（例: ランダム ±100）
+    rng = np.random.default_rng()
+    return {"Total Profit": rng.normal(0, 100)}
+
+# ---------------- Objective ----------------
+def objective(trial):
+    params = {
+        "rsi_len" : trial.suggest_int("rsi_len", 6, 30),
+        "ema_fast": trial.suggest_int("ema_fast", 5, 40),
+        "ema_slow": trial.suggest_int("ema_slow", 20, 80),
+        "risk_pct": trial.suggest_float("risk_pct", 0.005, 0.03),
+    }
+    stats = run_backtest(**params)
+    pnl   = stats["Total Profit"]
+
+    if not np.isfinite(pnl):
+        print("⦿ non‑finite PnL", params, stats)
+        return -float("inf")
+    return -pnl        # Optuna は最小化 → 損益を最大化するため符号反転
+
+# ---------------- 最適化実行 ----------------
+def main() -> None:
+    study = optuna.create_study()
+    study.optimize(objective, n_trials=N_TRIALS)
+
+    # ===== YAML 保存 =====
+    if study.best_trial is not None and np.isfinite(study.best_value):
+        best_params: dict[str, any] = study.best_trial.params
+        PARAM_FILE.write_text(yaml.safe_dump(best_params, allow_unicode=True))
+        print("✅ Best params saved:", best_params)
+    else:
+        sys.exit(
+            "❌ 有効なスコアが得られませんでした（best_value = -inf）。\n"
+            "objective() が常に -inf を返していないか確認してください。"
+        )
+
+if __name__ == "__main__":
+    main()

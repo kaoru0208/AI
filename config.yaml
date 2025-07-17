@@ -1,0 +1,6 @@
+oanda:
+  token: ""                                # 空欄。環境変数 OANDA_TOKEN が優先されます
+  account_id: "101-009-35627361-001"       # ← あなたの口座 ID
+slack:
+  webhook_url: "https://hooks.slack.com/services/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"
+

@@ -1,0 +1,36 @@
+start,end,fast,slow,ret,mdd
+2020-01-01,2020-09-09,6,8,"Ticker
+USDJPY=X   -0.058752
+dtype: float64","Ticker
+USDJPY=X    0.074865
+dtype: float64"
+2020-06-25,2021-03-04,16,60,"Ticker
+USDJPY=X   -0.021625
+dtype: float64","Ticker
+USDJPY=X    0.046493
+dtype: float64"
+2020-12-18,2021-08-27,11,13,"Ticker
+USDJPY=X   -0.025482
+dtype: float64","Ticker
+USDJPY=X    0.034543
+dtype: float64"
+2021-06-14,2022-02-21,12,49,"Ticker
+USDJPY=X   -0.068171
+dtype: float64","Ticker
+USDJPY=X    0.073226
+dtype: float64"
+2021-12-07,2022-08-16,11,17,"Ticker
+USDJPY=X    0.00988
+dtype: float64","Ticker
+USDJPY=X    0.054211
+dtype: float64"
+2022-06-01,2023-02-08,5,10,"Ticker
+USDJPY=X    0.050185
+dtype: float64","Ticker
+USDJPY=X    0.063652
+dtype: float64"
+2022-11-24,2023-08-03,9,25,"Ticker
+USDJPY=X   -0.025715
+dtype: float64","Ticker
+USDJPY=X    0.075494
+dtype: float64"

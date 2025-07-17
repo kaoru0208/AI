@@ -1,11 +1,13 @@
-import time
 import logging
+import time
+
 import numpy as np
 from oandapyV20 import API
 from oandapyV20.endpoints.instruments import InstrumentsCandles
 from oandapyV20.endpoints.orders import OrderCreate
 from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.models import load_model
+
 import config
 
 # --- モデルを 1 回だけロード＆コンパイル ------------------

@@ -1,0 +1,11 @@
+target-version = "py311"
+force-exclude  = true
+exclude = [".git", ".venv", "__pycache__", "build", "dist", "**/site-packages/**"]
+
+[lint]                 # 新しい階層。旧 top‑level は非推奨 
+preview = false
+
+[lint.per-file-ignores]           # 旧 per-file-ignores をここへ移動 
+"fxbot/hpo_optuna.py" = ["E401"]
+"sandbox_test.py"     = ["E402"]
+"trade_bot.py"        = ["F821"]

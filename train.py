@@ -1,37 +1,39 @@
-import pandas as pd, numpy as np, logging
-from oandapyV20 import API
-from oandapyV20.endpoints.instruments import InstrumentsCandles
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
-from tensorflow.keras.callbacks import EarlyStopping
-import config                        # ← config.py を読む
+import logging
+import pathlib
 
-logging.basicConfig(filename='train.log',
-                    level=logging.INFO,
-                    format='%(asctime)s [%(levelname)s] %(message)s')
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.models import load_model
 
-api = API(access_token=config.API_TOKEN)
-params = {"count": 1000, "granularity": config.GRANULARITY}
-candles = InstrumentsCandles(config.INSTRUMENT, params=params)
-api.request(candles)
-prices = [float(c["mid"]["c"]) for c in candles.response["candles"] if c["complete"]]
+# --- 既存モデル互換チェック -------------------------
+MODEL_FILE = pathlib.Path("model.keras")
+try:
+    if MODEL_FILE.exists():
+        from tensorflow.keras.models import load_model
 
-df = pd.DataFrame(prices, columns=["close"])
-window = config.WINDOW_SIZE
-X, y = [], []
-for i in range(len(df)-window):
-    X.append(df.close.iloc[i:i+window].values)
-    y.append(df.close.iloc[i+window])
-X = np.array(X).reshape(-1, window, 1)
-y = np.array(y)
-train = int(len(X)*0.8)
-Xtr, Xte, ytr, yte = X[:train], X[train:], y[:train], y[train:]
-scale = Xtr.max()
-Xtr, Xte, ytr, yte = Xtr/scale, Xte/scale, ytr/scale, yte/scale
+        load_model(MODEL_FILE, compile=False)
+except Exception as e:
+    logging.warning("⚠️ 既存モデルを削除しました: %s", e)
+    MODEL_FILE.unlink(missing_ok=True)
+# ---------------------------------------------------
 
-model = Sequential([LSTM(50, input_shape=(window,1)), Dense(1)])
-model.compile(optimizer='adam', loss='mse')
-cb = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-model.fit(Xtr, ytr, epochs=50, batch_size=32, validation_data=(Xte,yte), callbacks=[cb])
-model.save("model.keras")
-print("✅  model.keras saved")
+
+def build_model():
+    m = tf.keras.Sequential([tf.keras.layers.Dense(1, input_shape=(1,))])
+    m.compile(optimizer="adam", loss=MeanSquaredError())
+    return m
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    path = pathlib.Path("model.keras")
+    if path.exists():
+        model = load_model(path, compile=False)  # compile は 1 回だけ
+        logging.info("✅ 既存モデルを読み込みました")
+    else:
+        model = build_model()
+        x = np.arange(100, dtype="float32").reshape(-1, 1)
+        model.fit(x, x, epochs=1, verbose=0)
+        model.save(path)
+        logging.info("✅ 新規学習して model.keras を保存しました")

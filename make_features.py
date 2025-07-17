@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import pandas as pd, talib
+import pandas as pd
+import talib
 
 # --- ① 1分足データを読み込み ---
 df = pd.read_csv("candles_USD_JPY_M1.csv", parse_dates=["time"])
@@ -7,8 +8,8 @@ df.set_index("time", inplace=True)
 df = df.astype(float)
 
 # --- ② テクニカル指標を付与 ---
-df["MA_20"]  = talib.SMA(df["close"], 20)
-df["MA_60"]  = talib.SMA(df["close"], 60)
+df["MA_20"] = talib.SMA(df["close"], 20)
+df["MA_60"] = talib.SMA(df["close"], 60)
 df["RSI_14"] = talib.RSI(df["close"], 14)
 up, mid, low = talib.BBANDS(df["close"], 20)
 df["BB_upper"], df["BB_lower"] = up, low

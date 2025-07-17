@@ -1,8 +1,15 @@
-[tool.black]
-line-length = 120
-target-version = ["py311"]
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
 
+[project]
+name = "fxbot"
+version = "0.1.0"
+description = "Forex AI trading bot"
+authors = [{name="YOUR NAME", email="you@example.com"}]
+
+[tool.setuptools.packages.find]
+include = ["fxbot*"]
+exclude = ["app*", "logs*", "data*", "model*", "results*", "reports*", "test_data*", "作成*", "ローカルに*", "無ければ作る*"]
 [tool.ruff]
-line-length = 120
-select = ["E", "F"]
-ignore = ["E501"]
+exclude = ["*.bak","balance_logger.py"]

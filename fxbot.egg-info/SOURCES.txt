@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+fxbot/__init__.py
+fxbot/config.py
+fxbot/metrics.py
+fxbot/trade.py
+fxbot.egg-info/PKG-INFO
+fxbot.egg-info/SOURCES.txt
+fxbot.egg-info/dependency_links.txt
+fxbot.egg-info/top_level.txt
+fxbot/api/__init__.py
+fxbot/api/stream.py

@@ -1,0 +1,37 @@
+# --- パラメータ読取り（最大 1 分リトライ） --------------------------
+from pathlib import Path
+from time import sleep
+import yaml
+
+yml = Path(__file__).with_name("best_params.yaml")
+if not yml.exists():
+    for _ in range(12):  # 5 秒 × 12 回
+        sleep(5)
+        if yml.exists():
+            break
+    else:
+        raise FileNotFoundError("best_params.yaml が見つかりません")
+
+params      = yaml.safe_load(yml.read_text())
+EMA_FAST    = params["ema_fast"]
+EMA_SLOW    = params["ema_slow"]
+RSI_LEN     = params["rsi_len"]
+RISK_PCT    = params.get("risk_pct", 0.01)
+# --------------------------------------------------------------------
+
+import os, yaml, oandapyV20, pathlib
+from oandapyV20.endpoints.orders import OrderCreate
+from notifier import slack_exception_handler
+
+# --- 学習済みパラメータを読む（無ければデフォルト値） ---
+default_params = dict(ema_fast=9, ema_slow=26, rsi_len=14, risk_pct=0.01)
+if pathlib.Path(__file__).with_name("best_params.yaml").exists():
+    default_params.update(yaml.safe_load(open("best_params.yaml")))
+
+EMA_FAST = default_params["ema_fast"]
+EMA_SLOW = default_params["ema_slow"]
+RSI_LEN  = default_params["rsi_len"]
+RISK_PCT = default_params["risk_pct"]
+
+# --- 以降は既存コードそのまま（entries / exits を EMA & RSI で判定） ---
+

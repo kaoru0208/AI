@@ -1,0 +1,8 @@
+{
+    "fast": 8,
+    "slow": 22,
+    "signal": 8,
+    "bb_length": 18,
+    "bb_std": 1.7,
+    "adx_th": 28
+}

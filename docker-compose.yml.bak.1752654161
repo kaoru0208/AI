@@ -1,0 +1,20 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    environment: {POSTGRES_PASSWORD: tsdb}
+    ports: ["5432:5432"]
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.12.2
+command:n
+  - mlflown
+  - servern
+  - --backend-store-urin
+  - sqlite:///mlflow.dbn
+  - --default-artifact-rootn
+  - ./mlrunsn
+  - --hostn
+  - 0.0.0.0n
+  - --portn
+  - "5000"n
+ports:n
+  - "5500:5000"

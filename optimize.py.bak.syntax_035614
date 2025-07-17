@@ -1,0 +1,78 @@
+import warnings, pandas as pd
+warnings.filterwarnings('ignore', category=FutureWarning, message="'T' is deprecated")
+import yaml, optuna, traceback
+from notifier import send_slack       # 失敗通知用
+import backtest
+
+DATA = "data.csv"                     # 直近データ
+
+def objective(trial):
+    import numpy as np
+
+    # ① パラメータ
+    params = {
+        "rsi_len" : trial.suggest_int("rsi_len", 6, 30),
+        "ema_fast": trial.suggest_int("ema_fast", 5, 40),
+        "ema_slow": trial.suggest_int("ema_slow", 20, 80),
+        "risk_pct": trial.suggest_float("risk_pct", 0.005, 0.03),
+    }
+
+    # ② バックテスト実行
+    stats = run_backtest(**params)      # <-- 自前ロジック
+    pnl   = stats["Total Profit"]
+
+    # ③ 無限大チェック
+    if not np.isfinite(pnl):
+        print("⦿ non‑finite PnL", params, stats)
+        return -float("inf")
+
+    # ④ Optuna は最小化 → 損益最大化のため符号反転
+    return -pnl
+    params = dict(
+        rsi_len   = trial.suggest_int("rsi_len",    6, 30),
+        ema_fast  = trial.suggest_int("ema_fast",   5, 40),
+        ema_slow  = trial.suggest_int("ema_slow",  20, 80),
+        risk_pct  = trial.suggest_float("risk_pct", 0.005, 0.03, step=0.001),
+    )
+    # Sharpe を最大化 ⇒ Optuna は「小さい方が良い」を想定するので -値
+    sharpe = backtest.run_backtest(csv=DATA, **params)["Sharpe Ratio"]
+    return -sharpe
+
+if __name__ == "__main__":
+    try:
+        study = optuna.create_study(
+            pruner=optuna.pruners.MedianPruner(),
+            direction="minimize")                 # -Sharpe を最小化
+        study.optimize(objective, n_trials=300, n_jobs=4)
+# =================== auto‑patch : save best params ===================
+if study.best_trial is not None and np.isfinite(study.best_value):
+    best_params: dict[str, any] = study.best_trial.params
+    PARAM_FILE.write_text(
+        yaml.safe_dump(best_params, allow_unicode=True)
+    )
+    print("✅ Best params saved:", best_params)
+else:
+    raise RuntimeError(
+        "❌ 有効なスコアが得られませんでした（best_value = -inf）。\n"
+        "objective が常に -inf を返していないか確認してください。"
+    )
+# =====================================================================
+
+        yaml.safe_dump(
+            study.best_params,
+            open("best_params.yaml", "w"),
+            sort_keys=False, allow_unicode=False) # ← zsh の “unknown sort specifier” 回避
+
+        send_slack(f"✅ optimize.py 完了\nbest = {study.best_params}")
+    except Exception:
+        send_slack(f":warning: optimize.py 失敗\n```{traceback.format_exc()}```")
+        raise
+# --- ここから貼り付け ---
+from pathlib import Path
+import yaml
+
+# Optuna のサーチが終わった時点で best_params という dict が出来ている想定
+PARAM_FILE = Path(__file__).with_name("best_params.yaml")
+PARAM_FILE.write_text(yaml.safe_dump(best_params, allow_unicode=True))
+print(f"★ saved: {PARAM_FILE}")    # ← ログで生成確認
+# --- ここまで ---

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash # Mac をスリープさせない（バックグラウンド） caffeinate -dimsu &
+
+# venv 内の Python を“絶対パス”で実行  ※activate は不要
+/Users/taka/projects/fxbot/.venv/bin/python \
+    /Users/taka/projects/fxbot/backtest.py \
+    >> /Users/taka/projects/fxbot/fxbot.log 2>&1
+

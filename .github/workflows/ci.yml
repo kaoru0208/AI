@@ -1,21 +1,11 @@
-name: CI
+name: test
 on: [push, pull_request]
 jobs:
-  test-build:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with: {python-version: '3.11'}
-    - run: pip install -r requirements.txt
-    - run: pytest --cov=fxbot
-    - uses: codecov/codecov-action@v4
-  docker:
-    needs: test-build
-    runs-on: ubuntu-latest
-    permissions: {contents: read, packages: write}
-    steps:
-    - uses: actions/checkout@v4
-    - run: docker build -t ghcr.io/${{ github.repository }}:latest .
-    - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-    - run: docker push ghcr.io/${{ github.repository }}:latest
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -r requirements.txt
+      - run: pytest -q
